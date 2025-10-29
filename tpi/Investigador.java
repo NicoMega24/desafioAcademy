@@ -10,5 +10,25 @@ public class Investigador {
         this.cantidadExperimentos = 0;
     }
 
+    public String getNombre() {
+        return nombre;
+    }
+    
+    public int getEdad() {
+        return edad;
+    }
+    
+    public int getCantidadExperimentos() {
+        return cantidadExperimentos;
+    }
+
+    public void incrementarExperimentos() {
+        cantidadExperimentos ++ ;
+    }
+    
+    @Override
+    public String toString() {
+        return nombre + " (" + edad + " años, " + cantidadExperimentos + " experimentos)";
+    }
 
 }
