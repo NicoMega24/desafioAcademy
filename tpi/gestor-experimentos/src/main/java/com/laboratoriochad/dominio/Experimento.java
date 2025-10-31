@@ -1,3 +1,5 @@
+package com.laboratoriochad.dominio;
+
 public abstract class Experimento {
 
     protected String nombre;

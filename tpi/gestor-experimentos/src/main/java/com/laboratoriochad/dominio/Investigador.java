@@ -1,3 +1,4 @@
+package com.laboratoriochad.dominio;
 public class Investigador {
 
     private String nombre;

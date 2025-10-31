@@ -1,3 +1,4 @@
+package com.laboratoriochad.dominio;
 
 import java.util.List;
 

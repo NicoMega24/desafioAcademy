@@ -1,3 +1,4 @@
+package com.laboratoriochad.dominio;
 public class ExperimentoQuimico extends Experimento {
     
     private String tipoReactivo;
