@@ -6,18 +6,14 @@ public class ExperimentoFisico extends Experimento {
     private String instrumento;
     private List<Investigador> investigadores;
 
-    public ExperimentoFisico(String nombre, int duracion, boolean exito, String instrumento, List<Investigador> investigadores) {
-        super(nombre, duracion, exito);
+    public ExperimentoFisico(String nombre, int duracion, boolean exitoso, String instrumento, List<Investigador> investigadores) {
+        super(nombre, duracion, exitoso);
         this.instrumento = instrumento;
         this.investigadores = investigadores;
-        for (Investigador i : investigadores) {
-            i.incrementarExperimentos();
-        }
-    }
 
-    @Override
-    public String getTipo() { 
-        return "Físico"; 
+        for (Investigador inv : investigadores) {
+            inv.incrementarExperimentos();
+        }
     }
 
     public String getInstrumento() {
@@ -25,7 +21,25 @@ public class ExperimentoFisico extends Experimento {
     }
 
     public List<Investigador> getInvestigadores() {
-        return investigadores; 
+        return investigadores;
     }
 
+    @Override
+    public String getTipo() {
+        return "Experimento Físico";
+    }
+
+    @Override
+    public String toString() {
+        StringBuilder nombres = new StringBuilder();
+        for (Investigador inv : investigadores) {
+            nombres.append(inv.getNombre()).append(", ");
+        }
+        if (!investigadores.isEmpty()) {
+            nombres.setLength(nombres.length() - 2);
+        }
+
+        return super.toString() + 
+               String.format(", instrumento=%s, investigadores=[%s]", instrumento, nombres.toString());
+    }
 }

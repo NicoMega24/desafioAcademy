@@ -11,16 +11,16 @@ import com.laboratoriochad.dominio.Investigador;
 import com.laboratoriochad.service.GestorExperimentos;
 import com.laboratoriochad.service.GestorInvestigadores;
 import com.laboratoriochad.service.ReporteService;
-
+import com.laboratoriochad.service.interfaces.IGestorExperimentos;
+import com.laboratoriochad.service.interfaces.IGestorInvestigadores;
+import com.laboratoriochad.service.interfaces.IReporteService;
 
 public class App {
-
-    public static void main( String[] args ){
-  
+    public static void main(String[] args) {
         Scanner sc = new Scanner(System.in);
-        GestorInvestigadores gestorInv = new GestorInvestigadores();
-        GestorExperimentos gestorExp = new GestorExperimentos();
-        ReporteService reporte = new ReporteService();
+        IGestorInvestigadores gestorInv = new GestorInvestigadores();
+        IGestorExperimentos gestorExp = new GestorExperimentos();
+        IReporteService reporte = new ReporteService();
 
         int opcion;
         do {
@@ -47,46 +47,39 @@ public class App {
                 case 2 -> {
                     System.out.print("Nombre del experimento: ");
                     String nombre = sc.nextLine();
-                    System.out.print("Duración (minutos): ");
+                    System.out.print("Duración (min): ");
                     int duracion = sc.nextInt();
-                    sc.nextLine();
                     System.out.print("¿Fue exitoso? (true/false): ");
-                    boolean exito = sc.nextBoolean();
-                    sc.nextLine();
+                    boolean exito = sc.nextBoolean(); sc.nextLine();
                     System.out.print("Tipo de reactivo: ");
                     String reactivo = sc.nextLine();
                     System.out.print("Nombre del investigador: ");
                     String invNom = sc.nextLine();
+
                     Investigador inv = gestorInv.buscarPorNombre(invNom);
                     if (inv != null) {
-                        ExperimentoQuimico eq = new ExperimentoQuimico(nombre, duracion, exito, reactivo, inv);
-                        gestorExp.agregarExperimento(eq);
-                    } else {
-                        System.out.println("Investigador no encontrado.");
-                    }
+                        gestorExp.agregarExperimento(new ExperimentoQuimico(nombre, duracion, exito, reactivo, inv));
+                    } else System.out.println("Investigador no encontrado.");
                 }
                 case 3 -> {
                     System.out.print("Nombre del experimento: ");
                     String nombre = sc.nextLine();
-                    System.out.print("Duración (minutos): ");
+                    System.out.print("Duración (min): ");
                     int duracion = sc.nextInt();
-                    sc.nextLine();
                     System.out.print("¿Fue exitoso? (true/false): ");
-                    boolean exito = sc.nextBoolean();
-                    sc.nextLine();
+                    boolean exito = sc.nextBoolean(); sc.nextLine();
                     System.out.print("Instrumento: ");
                     String instrumento = sc.nextLine();
                     System.out.print("Cantidad de investigadores: ");
-                    int cant = sc.nextInt();
-                    sc.nextLine();
+                    int cant = sc.nextInt(); sc.nextLine();
+
                     List<Investigador> lista = new ArrayList<>();
                     for (int i = 0; i < cant; i++) {
-                        System.out.print("Nombre investigador " + (i+1) + ": ");
+                        System.out.print("Nombre investigador " + (i + 1) + ": ");
                         Investigador inv = gestorInv.buscarPorNombre(sc.nextLine());
                         if (inv != null) lista.add(inv);
                     }
-                    ExperimentoFisico ef = new ExperimentoFisico(nombre, duracion, exito, instrumento, lista);
-                    gestorExp.agregarExperimento(ef);
+                    gestorExp.agregarExperimento(new ExperimentoFisico(nombre, duracion, exito, instrumento, lista));
                 }
                 case 4 -> gestorExp.getExperimentos().forEach(System.out::println);
                 case 5 -> {
@@ -95,12 +88,13 @@ public class App {
                     Experimento mayor = gestorExp.mayorDuracion();
                     if (mayor != null) System.out.println("Mayor duración: " + mayor.getNombre());
                     System.out.println("Promedio duración: " + reporte.promedioDuracion(gestorExp.getExperimentos()));
-                    System.out.println("Porcentaje de éxito: " + reporte.porcentajeExito(gestorExp.getExperimentos()) + "%");
+                    System.out.println("Porcentaje éxito: " + reporte.porcentajeExito(gestorExp.getExperimentos()) + "%");
                     Investigador top = gestorInv.investigadorMasActivo();
                     if (top != null) System.out.println("Investigador más activo: " + top);
                 }
                 case 6 -> reporte.exportarInvestigadoresCSV(gestorInv.getInvestigadores());
                 case 0 -> System.out.println("Hasta luego!");
+                default -> System.out.println("Opción no válida.");
             }
         } while (opcion != 0);
     }

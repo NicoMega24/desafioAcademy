@@ -1,32 +1,28 @@
 package com.laboratoriochad.service;
 
-import java.io.FileWriter;
-import java.io.IOException;
 import java.util.List;
 
 import com.laboratoriochad.dominio.Experimento;
 import com.laboratoriochad.dominio.Investigador;
+import com.laboratoriochad.service.interfaces.IReporteService;
+import com.laboratoriochad.utils.CSVExporter;
 
-public class ReporteService {
+public class ReporteService implements IReporteService {
+
+    @Override
+    public double promedioDuracion(List<Experimento> experimentos) {
+        return experimentos.stream().mapToInt(Experimento::getDuracion).average().orElse(0);
+    }
+
+    @Override
+    public double porcentajeExito(List<Experimento> experimentos) {
+        if (experimentos.isEmpty()) return 0;
+        long exitosos = experimentos.stream().filter(Experimento::isExitoso).count();
+        return (double) exitosos / experimentos.size() * 100;
+    }
+
+    @Override
     public void exportarInvestigadoresCSV(List<Investigador> investigadores) {
-        try (FileWriter writer = new FileWriter("investigadores.csv")) {
-            writer.write("nombre,edad,cantidad_experimentos\n");
-            for (Investigador i : investigadores) {
-                writer.write(i.getNombre() + "," + i.getEdad() + "," + i.getCantidadExperimentos() + "\n");
-            }
-            System.out.println("Archivo investigadores.csv generado con éxito!");
-        } catch (IOException e) {
-            System.out.println("Error al exportar CSV: " + e.getMessage());
-        }
+        CSVExporter.exportar(investigadores);
     }
-
-    public double promedioDuracion(List<Experimento> exps) {
-        return exps.stream().mapToInt(Experimento::getDuracionMinutos).average().orElse(0);
-    }
-
-    public double porcentajeExito(List<Experimento> exps) {
-        long exitos = exps.stream().filter(Experimento::isExito).count();
-        return (double) exitos / exps.size() * 100;
-    }
-
 }

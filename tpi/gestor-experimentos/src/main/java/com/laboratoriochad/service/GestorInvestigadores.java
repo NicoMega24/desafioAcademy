@@ -5,29 +5,34 @@ import java.util.Comparator;
 import java.util.List;
 
 import com.laboratoriochad.dominio.Investigador;
+import com.laboratoriochad.service.interfaces.IGestorInvestigadores;
 
-public class GestorInvestigadores {
-    private List<Investigador> investigadores = new ArrayList<>();
+public class GestorInvestigadores implements IGestorInvestigadores {
+    private final List<Investigador> investigadores = new ArrayList<>();
 
-    public Investigador registrarInvestigador(String nombre, int edad) {
-        Investigador inv = new Investigador(nombre, edad);
-        investigadores.add(inv);
-        return inv;
+    @Override
+    public void registrarInvestigador(String nombre, int edad) {
+        investigadores.add(new Investigador(nombre, edad));
     }
 
+    @Override
     public Investigador buscarPorNombre(String nombre) {
-        for (Investigador i : investigadores) {
-            if (i.getNombre().equalsIgnoreCase(nombre)) return i;
-        }
-        return null;
+        return investigadores.stream()
+                .filter(i -> i.getNombre().equalsIgnoreCase(nombre))
+                .findFirst()
+                .orElse(null);
     }
 
+    @Override
     public Investigador investigadorMasActivo() {
         return investigadores.stream()
                 .max(Comparator.comparingInt(Investigador::getCantidadExperimentos))
                 .orElse(null);
     }
 
-    public List<Investigador> getInvestigadores() { return investigadores; }
-
+    @Override
+    public List<Investigador> getInvestigadores() {
+        return investigadores;
+    }
 }
+

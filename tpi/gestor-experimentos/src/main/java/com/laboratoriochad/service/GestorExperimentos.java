@@ -5,27 +5,34 @@ import java.util.Comparator;
 import java.util.List;
 
 import com.laboratoriochad.dominio.Experimento;
+import com.laboratoriochad.service.interfaces.IGestorExperimentos;
 
-public class GestorExperimentos {
-    private List<Experimento> experimentos = new ArrayList<>();
+public class GestorExperimentos implements IGestorExperimentos {
+    private final List<Experimento> experimentos = new ArrayList<>();
 
-    public void agregarExperimento(Experimento e) {
-        experimentos.add(e);
+    @Override
+    public void agregarExperimento(Experimento experimento) {
+        experimentos.add(experimento);
     }
 
+    @Override
+    public List<Experimento> getExperimentos() {
+        return experimentos;
+    }
+
+    @Override
     public long contarExitosos() {
-        return experimentos.stream().filter(Experimento::isExito).count();
+        return experimentos.stream().filter(Experimento::isExitoso).count();
     }
 
+    @Override
     public long contarFallidos() {
-        return experimentos.size() - contarExitosos();
+        return experimentos.stream().filter(e -> !e.isExitoso()).count();
     }
 
+    @Override
     public Experimento mayorDuracion() {
-        return experimentos.stream()
-                .max(Comparator.comparingInt(Experimento::getDuracionMinutos))
-                .orElse(null);
+        return experimentos.stream().max(Comparator.comparingInt(Experimento::getDuracion)).orElse(null);
     }
-
-    public List<Experimento> getExperimentos() { return experimentos; }
 }
+
