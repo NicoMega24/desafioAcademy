@@ -8,6 +8,9 @@ import com.laboratoriochad.dominio.Experimento;
 import com.laboratoriochad.dominio.ExperimentoFisico;
 import com.laboratoriochad.dominio.ExperimentoQuimico;
 import com.laboratoriochad.dominio.Investigador;
+import com.laboratoriochad.exceptions.DatosInvalidosException;
+import com.laboratoriochad.exceptions.ExperimentoNoEncontradoException;
+import com.laboratoriochad.exceptions.InvestigadorNoEncontradoException;
 import com.laboratoriochad.service.GestorExperimentos;
 import com.laboratoriochad.service.GestorInvestigadores;
 import com.laboratoriochad.service.ReporteService;
@@ -37,13 +40,20 @@ public class App {
             sc.nextLine();
 
             switch (opcion) {
+
                 case 1 -> {
-                    System.out.print("Nombre: ");
-                    String nombre = sc.nextLine();
-                    System.out.print("Edad: ");
-                    int edad = sc.nextInt();
-                    gestorInv.registrarInvestigador(nombre, edad);
+                    try {
+                        System.out.print("Nombre: ");
+                        String nombre = sc.nextLine();
+                        System.out.print("Edad: ");
+                        int edad = sc.nextInt();
+                        gestorInv.registrarInvestigador(nombre, edad);
+                        System.out.println(" Investigador registrado con éxito.");
+                    } catch (DatosInvalidosException e) {
+                        System.out.println(" Error: " + e.getMessage());
+                    }
                 }
+
                 case 2 -> {
                     System.out.print("Nombre del experimento: ");
                     String nombre = sc.nextLine();
@@ -57,14 +67,24 @@ public class App {
                     String reactivo = sc.nextLine();
                     System.out.print("Nombre del investigador: ");
                     String invNom = sc.nextLine();
-                    Investigador inv = gestorInv.buscarPorNombre(invNom);
-                    if (inv != null) {
+
+                    try {
+                        Investigador inv = gestorInv.buscarPorNombre(invNom); // puede lanzar InvestigadorNoEncontradoException
+                        if (inv == null) {
+                            throw new InvestigadorNoEncontradoException("El investigador '" + invNom + "' no fue encontrado.");
+                        }
+
                         ExperimentoQuimico eq = new ExperimentoQuimico(nombre, duracion, exito, reactivo, inv);
                         gestorExp.agregarExperimento(eq);
-                    } else {
-                        System.out.println("Investigador no encontrado.");
+                        System.out.println(" Experimento químico registrado correctamente.");
+                        
+                    } catch (InvestigadorNoEncontradoException e) {
+                        System.out.println(" " + e.getMessage());
+                    } catch (DatosInvalidosException e) {
+                        System.out.println(" Error en los datos del experimento: " + e.getMessage());
                     }
-                }
+}
+
                 case 3 -> {
                     System.out.print("Nombre del experimento: ");
                     String nombre = sc.nextLine();
@@ -79,40 +99,79 @@ public class App {
                     System.out.print("Cantidad de investigadores: ");
                     int cant = sc.nextInt();
                     sc.nextLine();
+
                     List<Investigador> lista = new ArrayList<>();
                     for (int i = 0; i < cant; i++) {
-                        System.out.print("Nombre investigador " + (i + 1) + ": ");
-                        Investigador inv = gestorInv.buscarPorNombre(sc.nextLine());
-                        if (inv != null) lista.add(inv);
+        System.out.print("Nombre investigador " + (i + 1) + ": ");
+        String nombreInv = sc.nextLine();
+        try {
+            Investigador inv = gestorInv.buscarPorNombre(nombreInv);
+            lista.add(inv);
+        } catch (InvestigadorNoEncontradoException e) {
+            System.out.println("⚠️ " + e.getMessage());
+        }
+            }
+
+            if (lista.isEmpty()) {
+                System.out.println(" No se pudo registrar el experimento (sin investigadores válidos).");
+                return; 
+            }
+
+            try {
+                ExperimentoFisico ef = new ExperimentoFisico(nombre, duracion, exito, instrumento, lista);
+                gestorExp.agregarExperimento(ef);
+                System.out.println(" Experimento físico registrado correctamente.");
+            } catch (DatosInvalidosException e) {
+                System.out.println(" Error en los datos del experimento: " + e.getMessage());
+            }
+        }
+
+                case 4 -> {
+                    System.out.println("\n=== Lista de experimentos ===");
+                    if (gestorExp.getExperimentos().isEmpty()) {
+                        System.out.println("No hay experimentos registrados.");
+                    } else {
+                        gestorExp.getExperimentos().forEach(System.out::println);
                     }
-                    ExperimentoFisico ef = new ExperimentoFisico(nombre, duracion, exito, instrumento, lista);
-                    gestorExp.agregarExperimento(ef);
                 }
-                case 4 -> gestorExp.getExperimentos().forEach(System.out::println);
+
                 case 5 -> {
                     System.out.println("Total exitosos: " + gestorExp.contarExitosos());
                     System.out.println("Total fallidos: " + gestorExp.contarFallidos());
                 }
+
                 case 6 -> {
-                    Experimento mayor = gestorExp.mayorDuracion();
-                    if (mayor != null)
+                    try {
+                        Experimento mayor = gestorExp.mayorDuracion();
                         System.out.println("Experimento de mayor duración: " + mayor.getNombre() + " (" + mayor.getDuracion() + " min)");
-                    else
-                        System.out.println("No hay experimentos registrados.");
+                    } catch (ExperimentoNoEncontradoException e) {
+                        System.out.println("⚠️ " + e.getMessage());
+                    }
                 }
+
                 case 7 -> {
                     System.out.println("Promedio de duración: " + reporte.promedioDuracion(gestorExp.getExperimentos()));
                     System.out.println("Porcentaje de éxito: " + reporte.porcentajeExito(gestorExp.getExperimentos()) + "%");
                 }
+
                 case 8 -> {
                     Investigador top = gestorInv.investigadorMasActivo();
-                    if (top != null) System.out.println("Investigador más activo: " + top);
-                    else System.out.println("No hay investigadores registrados.");
+                    if (top != null)
+                        System.out.println("Investigador más activo: " + top);
+                    else
+                        System.out.println("No hay investigadores registrados.");
                 }
-                case 9 -> reporte.exportarInvestigadoresCSV(gestorInv.getInvestigadores());
+
+                case 9 -> {
+                    reporte.exportarInvestigadoresCSV(gestorInv.getInvestigadores());
+                    System.out.println(" Archivo CSV generado correctamente.");
+                }
+
                 case 0 -> System.out.println("Hasta luego!");
-                default -> System.out.println("Opción inválida, intente nuevamente.");
+
+                default -> System.out.println(" Opción inválida, intente nuevamente.");
             }
         } while (opcion != 0);
-    }
+     sc.close();
+}
 }
