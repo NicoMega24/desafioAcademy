@@ -1,4 +1,4 @@
-package com.laboratoriochad.service;
+package com.laboratoriochad.utils;
 
 import java.util.Scanner;
 

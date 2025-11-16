@@ -8,8 +8,8 @@ import com.laboratoriochad.exceptions.ExperimentoNoEncontradoException;
 import com.laboratoriochad.exceptions.InvestigadorNoEncontradoException;
 import com.laboratoriochad.service.GestorExperimentos;
 import com.laboratoriochad.service.GestorInvestigadores;
-import com.laboratoriochad.service.ManejoConsola;
 import com.laboratoriochad.service.ReporteService;
+import com.laboratoriochad.utils.ManejoConsola;
 
 public class Menu {
 
